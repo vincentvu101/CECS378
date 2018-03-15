@@ -81,6 +81,7 @@ def MyfileEncrypt(filepath):
   encFile = open(output, "wb")
   encFile.write(ct)
   encFile.close()
+  print("The file has been encrypted")
   return ct, iv, key, magic.ENC_EXT
 
 #Decrypting the file. Inverse of MyfileEncrypt
@@ -110,6 +111,7 @@ def WriteJson(ct, key, iv, ext):
   data = {"Cipher text": b64encode(ct).decode('utf-8') , "Key": b64encode(key).decode('utf-8'), "IV": b64encode(iv).decode('utf-8'), "Extension": ext}
   json.dump(data, output)
   output.close()
+  print("Generating JSON File with the necessary contents")
 
 #Decryption with the json file 
 #Correct Way
@@ -133,6 +135,7 @@ def MyfileDecrypt2(filepath, jsonPath):
   #Create a file to hold the decrypted data
   #Use for comparison with the original image
   decrypt = open("Decrypted.JPG", "wb")
+  print("The decrypted data is stored in Decrypted.JPG")
   decrypt.write(pt)
   decrypt.close()
 
@@ -146,6 +149,8 @@ print("Original Message: ", message)
 print("Cipher text: ", ct)
 print("Decrypted Message: ", Mydecrypt(ct, key, iv))
 
+#Testing MyfileEncrypt and MyfileDecrypt2
+#Encrypting an image, creating a JSON file and decrypted the encryption
 ct, iv, key, extension = MyfileEncrypt(magic.PIC_PATH)
 WriteJson(ct, key, iv, extension)
 MyfileDecrypt2(magic.PIC_PATH + magic.ENC_EXT, magic.JSON_FILENAME)
