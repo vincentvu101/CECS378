@@ -1,5 +1,7 @@
 import os
 import base64
+import json
+from base64 import b64encode, b64decode
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
@@ -23,8 +25,6 @@ def Myencrypt(message, key):
   cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend = backend)
   encryptor = cipher.encryptor()
   ct = encryptor.update(padded_data) + encryptor.finalize()
-  print("Encryption Complete")
-  print("ciphertext: ",ct)
   return ct, IV
 
 def Mydecrypt(ct, key, iv):
@@ -33,7 +33,6 @@ def Mydecrypt(ct, key, iv):
   data = decryptor.update(ct) + decryptor.finalize()
   unpadder = padding.PKCS7(128).unpadder()
   data = unpadder.update(data) + unpadder.finalize()
-  print(data)
   return data
   
 def MyfileEncrypt(filepath):
@@ -43,7 +42,7 @@ def MyfileEncrypt(filepath):
   #read file in binary
   file = open(filepath, 'rb')
   bdata = file.read()
-  bdata = base64.b64encode(bdata)
+  bdata = b64encode(bdata)
   file.close()
   
   ct, iv = Myencrypt(bdata, key)
@@ -60,17 +59,38 @@ def MyfileDecrypt(filepath, key, iv):
   
   filepath.replace(extension, '')
   data = Mydecrypt(bdata, key, iv)
-  data = base64.b64decode(data)
+  data = b64decode(data)
   decrypt = open("Hello.JPG", "wb")
   decrypt.write(data)
   decrypt.close()
 
+#Writing to Json file
+def WriteJson(ct, key, iv, ext):
+  output = open("EncryptInfo.json", 'w')
+  data = {"Cipher text": b64encode(ct).decode('utf-8') , "Key": b64encode(key).decode('utf-8'), "IV": b64encode(iv).decode('utf-8'), "Extension": ext}
+  json.dump(data, output)
+  output.close()
+
+#Decryption with the json file  
+def MyfileDecrypt2(filepath, jsonPath):
+  with open(jsonPath) as jsonFile:
+    EncryptData = json.load(jsonFile)
+    ct = b64decode(EncryptData["Cipher text"])
+    key = b64decode(EncryptData["Key"])
+    iv = b64decode(EncryptData["IV"])
+    ext = EncryptData["Extension"]
+  pt = Mydecrypt(ct, key, iv)
+  pt = b64decode(pt)
+  decrypt = open("Hello.JPG", "wb")
+  decrypt.write(pt)
+  decrypt.close()
+  
 key = os.urandom(32)
 message = b"hello"
 ct, iv = Myencrypt(message, key)
-Mydecrypt(ct, key, iv)
+print(ct)
+print(Mydecrypt(ct, key, iv))
 
 ct, iv, key, extension = MyfileEncrypt("Capture.JPG")
-print(ct)
-
-MyfileDecrypt("Capture.JPG.encrypt", key, iv)
+WriteJson(ct, key, iv, extension)
+MyfileDecrypt2("Capture.JPG.encrypt", "EncryptInfo.json")
