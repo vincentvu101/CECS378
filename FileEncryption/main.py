@@ -56,13 +56,12 @@ def MyfileEncrypt(filepath):
 def MyfileDecrypt(filepath, key, iv):
   file = open(filepath, 'rb')
   bdata = file.read()
-  data = base64.b64decode(bdata)
   file.close()
   
   filepath.replace(extension, '')
-  data = Mydecrypt(data, key, iv)
-  
-  decrypt = open(filepath, "w+")
+  data = Mydecrypt(bdata, key, iv)
+  data = base64.b64decode(data)
+  decrypt = open("Hello.JPG", "wb")
   decrypt.write(data)
   decrypt.close()
 
@@ -73,3 +72,5 @@ Mydecrypt(ct, key, iv)
 
 ct, iv, key, extension = MyfileEncrypt("Capture.JPG")
 print(ct)
+
+MyfileDecrypt("Capture.JPG.encrypt", key, iv)
