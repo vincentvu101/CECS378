@@ -184,7 +184,7 @@ file.close()
 #Encrypting key using generated public key
 def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
   #Encrypt the file
-  C, IV, key, ext = MyfileEncrypt(magic.PIC_PATH)
+  C, IV, key, ext = MyfileEncrypt(filepath)
   
   #Load the public key from file
   with open(RSA_Publickey_filepath, "rb") as key_encrypt:
